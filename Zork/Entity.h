@@ -2,6 +2,7 @@
 #define __Entity__
 
 #include <string>
+#include <iostream>
 #include <list>
 
 using namespace std;
@@ -28,6 +29,7 @@ public: //functions
 	void ChangeParent(Entity* newParent); //function that changes this Entity's parent
 	bool exists(Entity* otherEntity) const; //function that checks if another Entity exists in this Entity
 	Entity* getElement(const string& name, Type type) const; //function that gets target Entity comparing its name and type
+	void getAllOf(Type type, list<Entity*>& elementsFound); //function that fills a list with all the elements of a type the Entity contains.
 };
 
 #endif
