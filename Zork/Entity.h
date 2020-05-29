@@ -1,7 +1,7 @@
 #ifndef __Entity__
 #define __Entity__
 
-#include <iostream>
+#include <string>
 #include <list>
 
 using namespace std;
