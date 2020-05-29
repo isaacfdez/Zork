@@ -64,7 +64,7 @@ Entity* Entity::getElement(const string& name, Type type) const
 	}
 }
 
-void Entity::getAllOf(Type type, list<Entity*>& elementsFound)
+void Entity::getAllOf(Type type, list<Entity*>& elementsFound) const
 {
 	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); gameElement++)
 	{
