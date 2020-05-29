@@ -3,6 +3,8 @@
 
 #include "Entity.h"
 
+using namespace std;
+
 class Item : public Entity//class that defines the variables and functions used by the items in the game
 {
 public: //variables
