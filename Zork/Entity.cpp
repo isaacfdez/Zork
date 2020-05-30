@@ -2,7 +2,7 @@
 
 Entity::Entity(const char* name, const char* desc, Entity* parent = NULL) : name(name), desc(desc), parent(parent)
 {
-	type = entity;
+	type = ENTITY;
 
 	if (parent != NULL)
 	{

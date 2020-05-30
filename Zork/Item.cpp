@@ -2,7 +2,7 @@
 
 Item::Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, bool canEquip) : Entity(name, desc, parent), valAttack(valAttack), valBlock(valBlock), canEquip(canEquip)
 {
-	type = item;
+	type = ITEM;
 }
 
 Item::~Item()
@@ -17,7 +17,7 @@ void Item::lookAt() const
 	if (!gameElements.empty())
 	{
 		list<Entity*> itemsInside;
-		getAllOf(item, itemsInside);
+		getAllOf(ITEM, itemsInside);
 		cout << name << "has inside: " << "\n";
 		for (list<Entity*>::const_iterator item = itemsInside.begin(); item != itemsInside.end(); ++item)
 		{
@@ -53,4 +53,9 @@ void Item::setValAttack(int value)
 void Item::setValBlock(int value)
 {
 	valBlock = value;
+}
+
+bool Item::isEmpty() const
+{
+	return gameElements.empty();
 }

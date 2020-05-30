@@ -9,7 +9,7 @@ using namespace std;
 
 enum Type //enum to set the type for the diferent classes inheriting Entity
 {
-	creature, entity, exit, item, player, room
+	CREATURE, ENTITY, EXIT, ITEM, PLAYER, ROOM
 };
 
 class Entity //class that defines common variables and functions for all game elements

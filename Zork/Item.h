@@ -15,12 +15,12 @@ public: //variables
 public: //functions
 	Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, bool canEquip = false); //constructor
 	~Item(); //destructor
-	void lookAt() const; //function that describes the Entity
+	void lookAt() const; //function that describes the Item
 	int getValAttack(); //function that returns the value of attack
 	int getValBlock(); //function that returns the value of block
 	void setValAttack(int value); //function that set the value for attacking
 	void setValBlock(int value); //function that set the value for blocking
+	bool isEmpty() const; //checks if this Item has an Item inside
 };
-
 
 #endif
