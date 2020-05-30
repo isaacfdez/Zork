@@ -5,21 +5,24 @@
 
 using namespace std;
 
-class Item : public Entity//class that defines the variables and functions used by the items in the game
+enum Slot //enum that indicates in which Item slot of a Creature this Item can be equiped
+{
+	WEAPON, SHIELD, HELM, VEST, PANTS
+};
+
+class Item : public Entity //The list of Entities inherited from the class Entity for this class will be a list of Items this Item contains. It will be empty otherwise.
 {
 public: //variables
 	bool canEquip; //boolean that defines if the item can be equiped
 	int valAttack; //value of the amount of damage the item inflicts
-	int valBlock; //value of the amount of damage the item can block 
+	int valBlock; //value of the amount of damage the item can block
+	int valDefense; //value of the amount of defense the item provides
+	Slot slot; //slot in which this Item can be equiped
 
 public: //functions
-	Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, bool canEquip = false); //constructor
-	~Item(); //destructor
+	Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, const int valDefense, Slot itemSlot); //constructor
+	virtual ~Item(); //destructor
 	void lookAt() const; //function that describes the Item
-	int getValAttack(); //function that returns the value of attack
-	int getValBlock(); //function that returns the value of block
-	void setValAttack(int value); //function that set the value for attacking
-	void setValBlock(int value); //function that set the value for blocking
 	bool isEmpty() const; //checks if this Item has an Item inside
 };
 

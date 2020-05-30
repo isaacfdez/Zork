@@ -6,16 +6,16 @@
 
 using namespace std;
 
-class Exit : public Entity
+class Exit : public Entity //The list of Entities inherited from the class Entity for this class will be empty.
 {
 public: //variables
-	Room* destination;
-	std::string direction;
-	bool locked;
+	Room* destination; //destination Room of this Exit
+	std::string direction; //direction of this Exit
+	bool locked; //boolean that indicates whether the exit is locked or unlocked
 
 public: //functions
 	Exit(const char* name, const char* desc, Room* origin, Room* destination, const char* direction, bool locked); //cosntructor
-	~Exit(); //destructor
+	virtual ~Exit(); //destructor
 	void lookAt() const; //function that describes the Exit
 
 };

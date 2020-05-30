@@ -12,7 +12,7 @@ Room::~Room()
 {
 }
 
-void Room::LookAt()
+void Room::lookAt()
 {
 	cout << "\nYou're at the " << name << "\n";
 	cout << desc << "\n";
@@ -21,12 +21,13 @@ void Room::LookAt()
 	{
 		if ((*gameElement)->type == CREATURE)
 		{
+			Creature* creature = (Creature*)(*gameElement);
 			cout << "You can see here ";
-			if (!(*gameElement)->isAlive())
+			if (!creature->isAlive)
 			{
 				cout << "the corpse of ";
 			}
-			cout << (*gameElement)->name << "\n";
+			cout << creature->name << "\n";
 		}
 	}
 
@@ -48,7 +49,7 @@ void Room::LookAt()
 	{
 		if ((*gameElement)->type == EXIT)
 		{
-			Exit* exit = (Exit*)*gameElement;
+			Exit* exit = (Exit*)(*gameElement);
 			exit->lookAt();
 		}
 	}

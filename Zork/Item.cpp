@@ -1,8 +1,16 @@
 #include "Item.h"
 
-Item::Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, bool canEquip) : Entity(name, desc, parent), valAttack(valAttack), valBlock(valBlock), canEquip(canEquip)
+Item::Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, const int valDefense, Slot itemSlot) : Entity(name, desc, parent), valAttack(valAttack), valBlock(valBlock), valDefense(valDefense), slot(itemSlot)
 {
 	type = ITEM;
+	if (slot != NULL) 
+	{
+		canEquip = true;
+	}
+	else
+	{
+		canEquip = false;
+	}
 }
 
 Item::~Item()
@@ -24,35 +32,6 @@ void Item::lookAt() const
 			cout << (*item)->name << "\n";
 		}
 	}
-}
-
-int Item::getValAttack()
-{
-	if (valAttack != NULL)
-	{
-		return valAttack;
-	}
-
-	return 0;
-}
-
-int Item::getValBlock()
-{
-	if (valBlock != NULL)
-	{
-		return valBlock;
-	}
-	return 0;
-}
-
-void Item::setValAttack(int value)
-{
-	valAttack = value;
-}
-
-void Item::setValBlock(int value)
-{
-	valBlock = value;
 }
 
 bool Item::isEmpty() const

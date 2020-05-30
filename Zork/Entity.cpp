@@ -19,13 +19,13 @@ void Entity::updateStatus()
 }
 
 
-void Entity::LookAt() const
+void Entity::lookAt() const
 {
 	cout << name << "\n";
 	cout << desc << "\n";
 }
 
-void Entity::ChangeParent(Entity* newParent)
+void Entity::changeParent(Entity* newParent)
 {
 	if (parent != NULL) 
 	{
@@ -40,7 +40,7 @@ void Entity::ChangeParent(Entity* newParent)
 	}
 }
 
-bool Entity::exists(Entity* otherEntity) const
+bool Entity::existsEntity(Entity* otherEntity) const
 {
 	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); gameElement++)
 	{
@@ -53,7 +53,20 @@ bool Entity::exists(Entity* otherEntity) const
 	return false;
 }
 
-Entity* Entity::getElement(const string& name, Type type) const
+bool Entity::existsType(Type type) const
+{
+	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); gameElement++)
+	{
+		if ((*gameElement)->type == type)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+Entity* Entity::getElement(Type type, const string& name) const
 {
 	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); gameElement++)
 	{
