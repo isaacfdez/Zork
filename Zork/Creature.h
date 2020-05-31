@@ -14,6 +14,7 @@ class Creature : public Entity //The list of Entities inherited from the class E
 public: //Variables
 	bool isAlive; //boolean that indicates if this creature is alive or dead
 	int lifePoints; //number of life points remaining for this creature
+	int baseAttack; //number of base Attack Damage of this creature
 	Item* weapon; //Item slot for the weapon
 	Item* shield; //Item slot for the shield
 	Item* vest; //Item slot for chest protection area
@@ -22,7 +23,7 @@ public: //Variables
 	Creature* targetToAttack; //target Creature objective of attacks
 
 public: //functions
-	Creature(const char* name, const char* desc, Room* parent, int lifePoints); //constructor
+	Creature(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack); //constructor
 	virtual ~Creature(); //destructor
 	virtual void lookAt(const vector<string>& targetEntity) const; //describes this Creature
 	virtual void updateStatus(); //updates status of this Creature

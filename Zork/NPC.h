@@ -5,6 +5,11 @@
 
 class NPC : public Creature
 {
+public: //variables
+
+public: //functions
+	NPC(const char* name, const char* desc, Room* parent, list<Item*> inventory);
+
 };
 
 #endif

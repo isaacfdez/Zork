@@ -3,6 +3,7 @@
 
 #include "Entity.h"
 #include "Room.h"
+#include "Item.h"
 
 using namespace std;
 
@@ -12,9 +13,10 @@ public: //variables
 	Room* destination; //destination Room of this Exit
 	std::string direction; //direction of this Exit
 	bool locked; //boolean that indicates whether the exit is locked or unlocked
+	Item* key; //Item to open or close the exit
 
 public: //functions
-	Exit(const char* name, const char* desc, Room* origin, Room* destination, const char* direction, bool locked); //cosntructor
+	Exit(const char* name, const char* desc, Room* origin, Room* destination, const char* direction, bool locked, Item* key = NULL); //cosntructor
 	virtual ~Exit(); //destructor
 	void lookAt() const; //function that describes the Exit
 

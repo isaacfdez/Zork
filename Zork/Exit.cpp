@@ -1,7 +1,7 @@
 #include "Exit.h"
 
 
-Exit::Exit(const char* name, const char* desc, Room* origin, Room* destination, const char* direction, bool locked) : Entity(name, desc, (Entity*)origin), destination(destination), direction(direction), locked(locked)
+Exit::Exit(const char* name, const char* desc, Room* origin, Room* destination, const char* direction, bool locked, Item* key) : Entity(name, desc, (Entity*)origin), destination(destination), direction(direction), locked(locked)
 {
 	type = EXIT;
 }
