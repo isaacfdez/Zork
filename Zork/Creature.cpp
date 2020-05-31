@@ -3,7 +3,7 @@
 #include "Room.h"
 #include "Exit.h"
 
-Creature::Creature(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack) : Entity(name, desc, (Entity*)parent), lifePoints(lifePoints), baseAttack(baseAttack)
+Creature::Creature(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack, bool humanoid) : Entity(name, desc, (Entity*)parent), lifePoints(lifePoints), baseAttack(baseAttack), humanoid(humanoid)
 {
 	type = CREATURE;
 	isAlive = true;
@@ -22,17 +22,6 @@ void Creature::lookAt(const vector<string>& targetEntity) const
 		cout << "This is the corpse of ";
 	}
 	cout << name << ", " << desc << "\n";	
-}
-
-void Creature::updateStatus()
-{
-	if(targetToAttack != NULL)
-	{
-		if(parent->existsEntity(targetToAttack))
-		{
-			hit();
-		}
-	}
 }
 
 void Creature::showStats() const
@@ -98,224 +87,6 @@ void Creature::showInventory() const
 	}
 }
 
-void Creature::go(const vector<string>& targetExit)
-{
-	if (isAlive)
-	{
-		Exit* exit = getRoom()->getExit(targetExit[1]);
-
-		if (exit != NULL)
-		{
-			changeParent(exit->destination);
-		}
-	}	
-}
-
-void Creature::take(const vector<string>& targetItem)
-{
-	if (isAlive)
-	{
-		Item* item = (Item*)parent->getElement(ITEM, targetItem[1]);
-
-		if (item == NULL)
-		{
-			if (targetItem.size() > 2)
-			{
-				item = (Item*)parent->getElement(ITEM, targetItem[3]);
-
-				if (item != NULL)
-				{
-					item->changeParent(this);
-				}
-			}
-		}
-		else
-		{
-			item->changeParent(this);
-		}
-	}	
-}
-
-void Creature::drop(const vector<string>& targetItem)
-{
-	if (isAlive)
-	{
-		Item* item = (Item*)parent->getElement(ITEM, targetItem[1]);
-
-		if (item != NULL)
-		{
-			if (targetItem.size() > 2)
-			{
-				Item* secondItem = (Item*)parent->getElement(ITEM, targetItem[3]);
-
-				if (secondItem != NULL)
-				{
-					item->changeParent(secondItem);
-				}
-				else
-				{
-					secondItem = (Item*)getElement(ITEM, targetItem[3]);
-
-					if (secondItem != NULL)
-					{
-						item->changeParent(secondItem);
-					}
-				}
-			}
-			else
-			{
-				item->changeParent(parent);
-			}
-		}
-	}
-}
-
-void Creature::loot(const vector<string>& targetDeadCreature)
-{
-	Creature* target = (Creature*)parent->getElement(CREATURE, targetDeadCreature[1]);
-
-	if(target != NULL)
-	{
-		if(!target->isAlive)
-		{
-			list<Entity*> inventoryOfTarget;
-			target->getAllOf(ITEM, inventoryOfTarget);
-
-			for (list<Entity*>::const_iterator item = inventoryOfTarget.begin(); item != inventoryOfTarget.end(); ++item)
-			{
-				Item* temporal = (Item*)(*item);
-				temporal->changeParent(this);
-			}
-		}
-	}
-}
-
-void Creature::lock(const vector<string>& targetExit)
-{
-	if (isAlive)
-	{
-		Exit* exit = getRoom()->getExit(targetExit[1]);
-
-		if (exit != NULL)
-		{
-			if (!exit->locked)
-			{
-				Item* key = (Item*)getElement(ITEM, targetExit[3]);
-
-				if (key != NULL)
-				{
-					if (key == exit->key)
-					{
-						exit->locked = true;
-					}
-				}
-			}
-		}
-	}
-}
-
-void Creature::unlock(const vector<string>& targetExit)
-{
-	if (isAlive)
-	{
-		Exit* exit = getRoom()->getExit(targetExit[1]);
-
-		if (exit != NULL)
-		{
-			if (exit->locked)
-			{
-				Item* key = (Item*)getElement(ITEM, targetExit[3]);
-
-				if (key != NULL)
-				{
-					if (key == exit->key)
-					{
-						exit->locked = false;
-					}
-				}
-			}
-		}
-	}
-}
-
-void Creature::equip(const vector<string>& targetItem)
-{
-	if (isAlive)
-	{
-		Item* item = (Item*)getElement(ITEM, targetItem[1]);
-
-		if (item != NULL)
-		{
-			if (item->canEquip)
-			{
-				switch (item->type)
-				{
-				case WEAPON:
-					weapon = item;
-					break;
-				case SHIELD:
-					shield = item;
-					break;
-				case HELM:
-					helm = item;
-					break;
-				case VEST:
-					vest = item;
-					break;
-				case PANTS:
-					pants = item;
-					break;
-				default:
-				}
-			}
-		}
-	}
-}
-
-void Creature::unequip(const vector<string>& targetItem)
-{
-	if (isAlive)
-	{
-		Item* item = (Item*)getElement(ITEM, targetItem[1]);
-
-		if (item != NULL)
-		{
-			if (item->canEquip)
-			{
-				switch (item->type)
-				{
-				case WEAPON:
-					weapon = NULL;
-					break;
-				case SHIELD:
-					shield = NULL;
-					break;
-				case HELM:
-					helm = NULL;
-					break;
-				case VEST:
-					vest = NULL;
-					break;
-				case PANTS:
-					pants = NULL;
-					break;
-				default:
-				}
-			}
-		}
-	}
-}
-
-void Creature::attack(const vector<string>& targetCreature)
-{
-	Creature* target = (Creature*)parent->getElement(CREATURE, targetCreature[1]);
-
-	if (target != NULL)
-	{
-		targetToAttack = target;
-	}
-}
-
 void Creature::hit()
 {
 	if(isAlive)
@@ -325,6 +96,7 @@ void Creature::hit()
 			if (targetToAttack->isAlive)
 			{
 				targetToAttack->block(baseAttack + weapon->valAttack);
+				cout << name << " attacks " << targetToAttack->name << " with a " << weapon->name << " for a value of " << baseAttack + weapon->valAttack << "\n";
 
 				if (targetToAttack->targetToAttack == NULL)
 				{
@@ -346,11 +118,17 @@ void Creature::block(const int damageAmount)
 	if (damageReceived > 0)
 	{
 		lifePoints -= damageReceived;
+		cout << name << " blocks " << getSumArmor() + shield->valBlock << " points of damage, losing " << damageReceived << " life points\n";
 
 		if (lifePoints <= 0)
 		{
 			isAlive = false;
+			cout << name << " has died from a fatal hit\n";
 		}
+	}
+	else
+	{
+		cout << name << " blocks all the damage and does not lose any life points\n";
 	}
 }
 
