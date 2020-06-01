@@ -53,6 +53,172 @@ void Player::showHelp() const
 	cout << "- quit: this command exits the game.\n";
 }
 
+void Player::lookAt(const vector<string>& targetEntity)
+{
+	if (isAlive) 
+	{
+		switch (targetEntity.size())
+		{
+		case 1:
+			parent->lookAt();
+			break;
+		case 2:
+			for (list<Entity*>::const_iterator entity = parent->gameElements.begin(); entity != parent->gameElements.end(); ++entity)
+			{
+				if (*entity != NULL)
+				{
+					if ((*entity)->type == EXIT)
+					{
+						if (_stricmp(targetEntity[1].c_str(), ((Room*)parent)->getExit(targetEntity[1])->name.c_str()))
+						{
+							(*entity)->lookAt();
+							break;
+						}
+					}
+					else if (_stricmp(targetEntity[1].c_str(), (*entity)->name.c_str()))
+					{
+						(*entity)->lookAt();
+						break;
+					}
+				}
+				else if (_stricmp(targetEntity[1].c_str(), name.c_str()))
+				{
+					cout << name << ", " << desc << "\n";
+					break;
+				}
+			}
+			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			break;
+		default:
+			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			break;
+		}
+	}
+	else
+	{
+		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+	}
+}
+
+void Player::showStats(const vector<string>& targetEntity) const
+{
+	if (isAlive)
+	{
+		switch (targetEntity.size())
+		{
+		case 1:
+			cout << name << "\n";
+			cout << lifePoints << "\n";
+			if (weapon != NULL) {
+				cout << "Attack = " << weapon->valAttack << "\n";
+			}
+			else
+			{
+				cout << "No weapon equiped. Attack = 0\n";
+			}
+			if (shield != NULL)
+			{
+				cout << "Block = " << shield->valBlock << "\n";
+			}
+			else
+			{
+				cout << "No shield equiped. Block = 0\n";
+			}
+			if (helm != NULL || vest != NULL || pants != NULL)
+			{
+				cout << "Armor = " << getSumArmor() << "\n";
+			}
+			else
+			{
+				cout << "No piece of armor equiped. Armor = 0\n";
+			}
+		case 2:
+			Creature * target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
+
+			if (target != NULL)
+			{
+				target->showStats();
+				break;
+			}
+			else
+			{
+				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+				break;
+			}
+		default:
+			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			break;
+		}
+	}
+	else
+	{
+		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+	}
+}
+
+void Player::showInventory(const vector<string>& targetEntity) const
+{
+	if (isAlive)
+	{
+		switch (targetEntity.size())
+		{
+		case 1:
+		{
+			list<Entity*> inventory;
+			getAllOf(ITEM, inventory);
+
+			if (inventory.size() != 0)
+			{
+				cout << "Inventory of " << name << "\n";
+				for (list<Entity*>::const_iterator item = inventory.begin(); item != inventory.end(); ++item)
+				{
+					switch ((*item)->type)
+					{
+					case WEAPON:
+						cout << (*item)->name << " equiped as a weapon.\n";
+						break;
+					case SHIELD:
+						cout << (*item)->name << " equiped as a shield.\n";
+						break;
+					case HELM:
+						cout << (*item)->name << " equiped as a helm.\n";
+						break;
+					case VEST:
+						cout << (*item)->name << " equiped as a vest.\n";
+						break;
+					case PANTS:
+						cout << (*item)->name << " equiped as pants.\n";
+						break;
+					default:
+						cout << (*item)->name << "\n";
+					}
+				}
+			}
+		}
+		case 2:
+			Creature * target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
+
+			if (target != NULL)
+			{
+				target->showInventory();
+				break;
+			}
+			else
+			{
+				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+				break;
+			}
+		default:
+			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			break;
+		}
+	}
+	else
+	{
+		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+	}
+}
+
 void Player::go(const vector<string>& targetExit)
 {
 	if (isAlive)

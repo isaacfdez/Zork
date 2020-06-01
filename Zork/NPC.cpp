@@ -30,29 +30,30 @@ void NPC::updateStatus()
 
 void NPC::autoEquip()
 {
-	for (list<Entity*>::const_iterator item = gameElements.begin(); item != gameElements.end(); ++item)
+	for (list<Entity*>::const_iterator possibleItem = gameElements.begin(); possibleItem != gameElements.end(); ++possibleItem)
 	{
-		Item* equipableItem = (Item*)(*item);
-		if (equipableItem != NULL)
+		Item* item = (Item*)(*possibleItem);
+		if (item != NULL)
 		{
-			if (equipableItem->canEquip)
+			item->changeParent(this);
+			if (item->canEquip)
 			{
-				switch (equipableItem->type)
+				switch (item->type)
 				{
 				case WEAPON:
-					weapon = equipableItem;
+					weapon = item;
 					break;
 				case SHIELD:
-					shield = equipableItem;
+					shield = item;
 					break;
 				case HELM:
-					helm = equipableItem;
+					helm = item;
 					break;
 				case VEST:
-					vest = equipableItem;
+					vest = item;
 					break;
 				case PANTS:
-					pants = equipableItem;
+					pants = item;
 					break;
 				default:
 				}

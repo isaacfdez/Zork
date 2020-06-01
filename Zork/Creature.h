@@ -26,7 +26,7 @@ public: //Variables
 public: //functions
 	Creature(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack, bool humanoid); //constructor
 	virtual ~Creature(); //destructor
-	virtual void lookAt(const vector<string>& targetEntity) const; //describes this Creature
+	virtual void lookAt() const; //describes this Creature
 	virtual void showStats() const; //command that shows the statistics of this Creature
 	virtual void showInventory() const; //command that shows the inventory of this Creature
 	virtual void hit(); //this Creature hits it's target for damage equal to it's weapon stats

@@ -26,7 +26,7 @@ public: //functions
 	virtual ~Entity(); //destructor
 	virtual void updateStatus(); //updates the status of the Entity
 	virtual void lookAt() const; //describes the Entity
-	void changeParent(Entity* newParent); //changes this Entity's parent
+	virtual void changeParent(Entity* newParent); //changes this Entity's parent
 	bool existsEntity(Entity* otherEntity) const; //checks if another Entity exists within this Entity's gameElements
 	bool existsType(Type type)const; //checks if the type exists within this Entity's gameElements
 	Entity* getElement(Type type, const string& name) const; //gets target Entity comparing its name and type

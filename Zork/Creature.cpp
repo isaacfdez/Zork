@@ -15,7 +15,7 @@ Creature::~Creature()
 {
 }
 
-void Creature::lookAt(const vector<string>& targetEntity) const
+void Creature::lookAt() const
 {
 	if (!isAlive)
 	{
