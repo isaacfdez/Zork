@@ -82,6 +82,7 @@ void Creature::showInventory() const
 				break;
 			default:
 				cout << (*item)->name << "\n";
+				break;
 			}
 		}
 	}

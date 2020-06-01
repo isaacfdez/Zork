@@ -56,6 +56,7 @@ void NPC::autoEquip()
 					pants = item;
 					break;
 				default:
+					break;
 				}
 			}
 		}

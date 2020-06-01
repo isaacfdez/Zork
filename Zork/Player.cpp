@@ -133,7 +133,8 @@ void Player::showStats(const vector<string>& targetEntity) const
 				cout << "No piece of armor equiped. Armor = 0\n";
 			}
 		case 2:
-			Creature * target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
+		{
+			Creature* target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
 
 			if (target != NULL)
 			{
@@ -145,6 +146,7 @@ void Player::showStats(const vector<string>& targetEntity) const
 				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
 				break;
 			}
+		}
 		default:
 			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
 			break;
@@ -196,7 +198,8 @@ void Player::showInventory(const vector<string>& targetEntity) const
 			}
 		}
 		case 2:
-			Creature * target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
+		{
+			Creature* target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
 
 			if (target != NULL)
 			{
@@ -208,6 +211,7 @@ void Player::showInventory(const vector<string>& targetEntity) const
 				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
 				break;
 			}
+		}
 		default:
 			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
 			break;
@@ -547,6 +551,7 @@ void Player::equip(const vector<string>& targetItem)
 					}
 					break;
 				default:
+					break;
 				}
 			}
 			else
