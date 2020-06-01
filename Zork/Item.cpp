@@ -1,16 +1,8 @@
 #include "Item.h"
 
-Item::Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, const int valDefense, Slot itemSlot) : Entity(name, desc, parent), valAttack(valAttack), valBlock(valBlock), valDefense(valDefense), slot(itemSlot)
+Item::Item(const char* name, const char* desc, Entity* parent, const int valAttack, const int valBlock, const int valDefense, ItemType itemType, bool canEquip) : Entity(name, desc, parent), valAttack(valAttack), valBlock(valBlock), valDefense(valDefense), itemType(itemType), canEquip(canEquip)
 {
-	type = ITEM;
-	if (slot != NULL) 
-	{
-		canEquip = true;
-	}
-	else
-	{
-		canEquip = false;
-	}
+	type = ITEM;	
 }
 
 Item::~Item()

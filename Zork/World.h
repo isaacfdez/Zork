@@ -18,8 +18,8 @@ private: //variables
 public: //functions
 	World(); //constructor
 	virtual ~World(); //destructor
-	void parser(vector<string>& playerQuery);
-	void executeCommand(vector<string>& playerQuery);
+	void executeCommand(vector<string>& playerQuery); //function that will execute the command prompted by the player
+	void updateStatusOfGameElements(); //fucntion called by executeCommand function that updates the status of all game elements
 };
 
 #endif

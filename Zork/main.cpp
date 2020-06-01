@@ -6,12 +6,17 @@ using namespace std;
 
 int main()
 {
+	cout << "This is my Zork Test for accessing UPC's Masters degree in Advanced Programming for AAA videogames!\n";
+	cout << "----------------------------------------------------------------------------------------------------\n\n\n";
+	cout << "You awake from unconsciousness. You do not remember how you fell unconscious or where you are.\n";
+	cout << "You look around and try take in as much as you can from your surroundings...\n\n";
 	string input;
 	vector<string> playerQuery;
 	World game;
 
 	cout << "Next move: ";
 	getline(cin, input);
+	cout << "\n";
 
 	while(true)
 	{
@@ -28,7 +33,10 @@ int main()
 			playerQuery.push_back(intermediate);
 		}
 
-		game.executeCommand(playerQuery);
+		if (playerQuery.size() > 0 && playerQuery[0].c_str() != "")
+		{
+			game.executeCommand(playerQuery);
+		}
 
 		if (playerQuery.size() >= 0)
 		{
@@ -41,7 +49,7 @@ int main()
 
 	}
 
-	cout << "Good bye, come again soon\n";
+	cout << "Thanks for playing, come again soon!\n";
 	return 0;
 }
 

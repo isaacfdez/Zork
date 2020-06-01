@@ -12,6 +12,6 @@ Exit::~Exit()
 
 void Exit::lookAt() const
 {
-	cout << "Looking " << name << "you can see" << desc <<" that leads to the " << destination->name << "\n";
+	cout << "Looking " << direction << " you can see " << desc << "\n";
 }
 
