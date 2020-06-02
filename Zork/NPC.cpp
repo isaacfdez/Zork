@@ -4,8 +4,13 @@
 
 NPC::NPC(const char* name, const char* desc, Room* parent, list<Entity*> inventory, int lifePoints, int baseAttack, bool humanoid, bool hostile) : Creature (name, desc, parent, lifePoints, baseAttack, humanoid), hostile(hostile)
 {
-	gameElements = inventory;
-	autoEquip();
+	type = CREATURE;
+	autoEquip(inventory);
+
+	if (lifePoints<1)
+	{
+		isAlive = false;
+	}
 }
 
 NPC::~NPC()
@@ -14,23 +19,30 @@ NPC::~NPC()
 
 void NPC::updateStatus()
 {
-	if(playerPresent() && hostile)
+	if (lifePoints <= 0 && isAlive)
 	{
-		targetToAttack = (Player*)parent->getPlayer();
+		isAlive = false;
 	}
-	
-	if (targetToAttack != NULL)
-	{
-		if (parent->existsEntity(targetToAttack))
+
+	if (isAlive) {
+		if (playerPresent() && hostile)
 		{
-			hit();
+			targetToAttack = (Player*)parent->getPlayer();
+		}
+
+		if (targetToAttack != NULL)
+		{
+			if (parent->existsEntity(targetToAttack))
+			{
+				hit();
+			}
 		}
 	}
 }
 
-void NPC::autoEquip()
+void NPC::autoEquip(list<Entity*> inventory)
 {
-	for (list<Entity*>::const_iterator possibleItem = gameElements.begin(); possibleItem != gameElements.end(); ++possibleItem)
+	for (list<Entity*>::const_iterator possibleItem = inventory.begin(); possibleItem != inventory.end(); ++possibleItem)
 	{
 		Item* item = (Item*)(*possibleItem);
 		if (item != NULL)
@@ -38,7 +50,7 @@ void NPC::autoEquip()
 			item->changeParent(this);
 			if (item->canEquip)
 			{
-				switch (item->type)
+				switch (item->itemType)
 				{
 				case WEAPON:
 					weapon = item;

@@ -3,6 +3,10 @@
 
 #include <vector>
 #include <string>
+#include <list>
+#include <time.h>
+
+#define timeLoop 0.0f
 
 class Entity;
 class Player;
@@ -13,7 +17,8 @@ class World
 {
 private: //variables
 	Player* player;
-	vector<Entity*> gameElements;
+	list<Entity*> gameElements;
+	clock_t loopClock;
 
 public: //functions
 	World(); //constructor

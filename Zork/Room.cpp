@@ -14,10 +14,10 @@ Room::~Room()
 
 void Room::lookAt()
 {
-	cout << "\nYou're at the " << name << "\n";
-	cout << desc << "\n";
+	cout << "\n\nYou're at the " << name << "\n\n";
+	cout << desc << "\n\n";
 
-	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); ++gameElement)
+	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.cend(); ++gameElement)
 	{
 		if ((*gameElement)->type == CREATURE)
 		{
@@ -31,7 +31,7 @@ void Room::lookAt()
 		}
 	}
 
-	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); ++gameElement)
+	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.cend(); ++gameElement)
 	{
 		if ((*gameElement)->type == ITEM)
 		{
@@ -45,11 +45,11 @@ void Room::lookAt()
 		}
 	}
 
-	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.end(); ++gameElement)
+	for (list<Entity*>::const_iterator gameElement = gameElements.begin(); gameElement != gameElements.cend(); ++gameElement)
 	{
 		if ((*gameElement)->type == EXIT)
 		{
-			Exit* exit = (Exit*)(*gameElement);
+			Exit* exit = (Exit*)*gameElement;
 			exit->lookAt();
 		}
 	}
@@ -57,7 +57,7 @@ void Room::lookAt()
 
 Exit* Room::getExit(const string& direction) const
 {
-	for (list<Entity*>::const_iterator gameElement= gameElements.begin(); gameElement != gameElements.end(); ++gameElement)
+	for (list<Entity*>::const_iterator gameElement= gameElements.begin(); gameElement != gameElements.cend(); ++gameElement)
 	{
 		if ((*gameElement)->type == EXIT)
 		{

@@ -5,16 +5,20 @@
 #include "Item.h"
 #include "Exit.h"
 #include "NPC.h"
+#include <iostream>
 
 World::World()
 {
+
+	loopClock = clock();
+
 	Room* dungeon = new Room("Dungeon", "An old prision chamber with several torture machines in a corner.");
 	Room* clearing = new Room("Clearing", "You find yourself surronded by a forest as soon as you emerge from the dungeon.");
 	Room* forest1 = new Room("Forest", "You don't see anything else but trees blocking your view.");
 	Room* forest2 = new Room("Forest", "You seem to recognice some of the trees. You cannot help the feeling that you are walking in circles.");
 	Room* forest3 = new Room("Forest", "You think this is a new part of the Forest. You think you are close to leave these trees behind.");
 	Room* wall = new Room("Wall", "You see a tall wall that expands beyond your sight.");
-	Room* armory = new Room("Armory", "You see the ruined remainings of an armory. Maybe there is something usefil here");
+	Room* armory = new Room("Armory", "You see the ruined remainings of an armory. Maybe there is something useful here");
 	Room* gates = new Room("Gates", "You see the gates that you hope will lead you to freedom.");
 	Room* endgame = new Room("Endgame", "Congratulations! You won the game! You can execute quit to exit the game or wander this world for as long as you like.");
 
@@ -29,13 +33,20 @@ World::World()
 	inventoryGuard.push_back(leatherPants);
 	inventoryGuard.push_back(dungeonKey);
 
-	list<Entity*>emptyInventory;
+	Item* fur = new Item("fur", "bunny fur", NULL, 0, 0, 0, COMMON, false);
+	Item* tooth = new Item("tooth", "boar tooth", NULL, 0, 0, 0, COMMON, false);
+
+	list<Entity*> bunnyInventory;
+	bunnyInventory.push_back(fur);
+
+	list<Entity*> boarInventory;
+	boarInventory.push_back(tooth);
 
 	NPC* deadGuard = new NPC("guard", "a guard of the dungeon you are in", dungeon, inventoryGuard, 0, 0, true, false);
 
-	NPC* bunny = new NPC("bunny", "a white rabbit going through the forest", clearing, emptyInventory, 5, 1, false, false);
+	NPC* bunny = new NPC("bunny", "a white rabbit going through the forest", clearing, bunnyInventory, 5, 1, false, false);
 
-	NPC* boar = new NPC("boar", "a wild brown boar searching the ground for truffles", forest1, emptyInventory, 20, 10, false, true);
+	NPC* boar = new NPC("boar", "a wild brown boar searching the ground for truffles", forest1, boarInventory, 20, 10, false, true);
 
 	Item* leafCrown = new Item("leafcrown", "a crown made of leafs", forest2, 0, 0, 1, HELM, true);
 	Item* chest = new Item("chest", "a chest with a broken lock", forest2, 0, 0, 0, COMMON, false);
@@ -56,8 +67,8 @@ World::World()
 
 	NPC* ogre = new NPC("ogre", "a big bad ogre guarding the gates to freedom", gates, inventoryOgre, 32, 5, true, false);
 
-	Exit* dungeonToClearing = new Exit("DungeonToClearing", "a set of old stone stairs", dungeon, clearing, "up", true, dungeonKey);
-	Exit* clearingToDungeon = new Exit("ClearingToDungeon", "a set of old stone stairs", clearing, dungeon, "down", false, dungeonKey);
+	Exit* dungeonToClearing = new Exit("DungeonToClearing", "a set of old stone stairs behind a door with iron bars", dungeon, clearing, "up", true, dungeonKey);
+	Exit* clearingToDungeon = new Exit("ClearingToDungeon", "a set of old stone stairs behind a door with iron bars", clearing, dungeon, "down", false, dungeonKey);
 
 	Exit* clearingToForest1 = new Exit("ClearingToForest1", "a muddy path between the trees", clearing, forest1, "north", false, NULL);
 	Exit* forest1ToClearing = new Exit("Forest1ToClearing", "a muddy path between the trees", forest1, clearing, "south", false, NULL);
@@ -92,7 +103,7 @@ World::World()
 	Exit* gatesToEndgame = new Exit("GatesToEndgame", "a pair of big iron gates", gates, endgame, "north", true, gatesKey);
 	Exit* endgameToGates = new Exit("EndgameToGates", "a pair of big iron gates", endgame, gates, "south", false, gatesKey);
 
-	Player* player = new Player("Hero", "an adventurer who travels the world in search of new experiences", dungeon, 50, 5, true);
+	player = new Player("Hero", "an adventurer who travels the world in search of new experiences", dungeon, 50, 5, true);
 
 	gameElements.push_back(dungeon);
 	gameElements.push_back(clearing);
@@ -135,6 +146,7 @@ World::World()
 	gameElements.push_back(gatesToForest3);
 	gameElements.push_back(gatesToEndgame);
 	gameElements.push_back(endgameToGates);
+	gameElements.push_back(player);		
 }
 
 World::~World()
@@ -143,139 +155,128 @@ World::~World()
 
 void World::executeCommand(vector<string>& playerQuery)
 {
-	switch (playerQuery.size())
+	if (playerQuery.size() > 0 && playerQuery[0].length() > 0) 
 	{
-	case 1:
-	{
-		if ("help" == playerQuery[0].c_str())
+		switch (playerQuery.size())
 		{
-			player->showHelp();
+		case 1:
+		{
+			if (_stricmp("help", playerQuery[0].c_str()) == 0)
+			{
+				player->showHelp();
+			}
+			else if (_stricmp("look", playerQuery[0].c_str()) == 0)
+			{
+				player->lookAt(playerQuery);
+			}
+			else if (_stricmp("stats", playerQuery[0].c_str()) == 0)
+			{
+				player->showStats(playerQuery);
+			}
+			else if (_stricmp("inventory", playerQuery[0].c_str()) == 0)
+			{
+				player->showInventory(playerQuery);
+			}
+			else
+			{
+				cout << "\nYou don't seem te be able to perform this action. Try help\n";
+			}
 			break;
 		}
-		else if ("look" == playerQuery[0].c_str())
+		case 2:
 		{
-			player->lookAt(playerQuery);
+			if (_stricmp("look", playerQuery[0].c_str()) == 0)
+			{
+				player->lookAt(playerQuery);
+			}
+			else if (_stricmp("stats", playerQuery[0].c_str()) == 0)
+			{
+				player->showStats(playerQuery);
+			}
+			else if (_stricmp("inventory", playerQuery[0].c_str()) == 0)
+			{
+				player->showInventory(playerQuery);
+			}
+			else if (_stricmp("go", playerQuery[0].c_str()) == 0)
+			{
+				player->go(playerQuery);
+			}
+			else if (_stricmp("take", playerQuery[0].c_str()) == 0)
+			{
+				player->take(playerQuery);
+			}
+			else if (_stricmp("drop", playerQuery[0].c_str()) == 0)
+			{
+				player->drop(playerQuery);
+			}
+			else if (_stricmp("loot", playerQuery[0].c_str()) == 0)
+			{
+				player->loot(playerQuery);
+			}
+			else if (_stricmp("equip", playerQuery[0].c_str()) == 0)
+			{
+				player->equip(playerQuery);
+			}
+			else if (_stricmp("unequip", playerQuery[0].c_str()) == 0)
+			{
+				player->unequip(playerQuery);
+			}
+			else if (_stricmp("attack", playerQuery[0].c_str()) == 0)
+			{
+				player->attack(playerQuery);
+			}
+			else
+			{
+				cout << "\nYou don't seem te be able to perform this action. Try help\n";
+			}
 			break;
 		}
-		else if ("stats" == playerQuery[0].c_str())
+		case 3:
 		{
-			player->showStats(playerQuery);
+			cout << "\nYou don't seem te be able to perform this action. Try help\n";
 			break;
 		}
-		else if ("inventory" == playerQuery[0].c_str())
+		case 4:
 		{
-			player->showInventory(playerQuery);
+			if (_stricmp("take", playerQuery[0].c_str()) == 0)
+			{
+				player->take(playerQuery);
+			}
+			else if (_stricmp("drop", playerQuery[0].c_str()) == 0)
+			{
+				player->drop(playerQuery);
+			}
+			else if (_stricmp("lock", playerQuery[0].c_str()) == 0)
+			{
+				player->lock(playerQuery);
+			}
+			else if (_stricmp("unlock", playerQuery[0].c_str()) == 0)
+			{
+				player->unlock(playerQuery);
+			}
+			else
+			{
+				cout << "\nYou don't seem te be able to perform this action. Try help\n";
+			}
 			break;
 		}
-		else 
-		{
-			cout << "You don't seem te be able to perform this action. Try help\n";
-			break;
+		default:
+			cout << "\nYou don't seem te be able to perform this action. Try help\n";
 		}
 	}
-	case 2:
-	{
-		if ("look" == playerQuery[0].c_str())
-		{
-			player->lookAt(playerQuery);
-			break;
-		}
-		else if ("stats" == playerQuery[0].c_str())
-		{
-			player->showStats(playerQuery);
-			break;
-		}
-		else if ("inventory" == playerQuery[0].c_str())
-		{
-			player->showInventory(playerQuery);
-			break;
-		}
-		else if ("go" == playerQuery[0].c_str())
-		{
-			player->go(playerQuery);
-			break;
-		}
-		else if ("take" == playerQuery[0].c_str())
-		{
-			player->take(playerQuery);
-			break;
-		}
-		else if ("drop" == playerQuery[0].c_str())
-		{
-			player->drop(playerQuery);
-			break;
-		}
-		else if ("loot" == playerQuery[0].c_str())
-		{
-			player->loot(playerQuery);
-			break;
-		}
-		else if ("equip" == playerQuery[0].c_str())
-		{
-			player->equip(playerQuery);
-			break;
-		}
-		else if ("unequip" == playerQuery[0].c_str())
-		{
-			player->unequip(playerQuery);
-			break;
-		}
-		else if ("attack" == playerQuery[0].c_str())
-		{
-			player->attack(playerQuery);
-			break;
-		}
-		else
-		{
-			cout << "You don't seem te be able to perform this action. Try help\n";
-			break;
-		}
-	}
-	case 3:
-	{
-		cout << "You don't seem te be able to perform this action. Try help\n";
-		break;
-	}
-	case 4:
-	{
-		if ("take" == playerQuery[0].c_str())
-		{
-			player->take(playerQuery);
-			break;
-		}
-		else if ("drop" == playerQuery[0].c_str())
-		{
-			player->drop(playerQuery);
-			break;
-		}
-		else if ("lock" == playerQuery[0].c_str())
-		{
-			player->lock(playerQuery);
-			break;
-		}
-		else if ("unlock" == playerQuery[0].c_str())
-		{
-			player->unlock(playerQuery);
-			break;
-		}
-		else
-		{
-			cout << "You don't seem te be able to perform this action. Try help\n";
-			break;
-		}
-	}
-	default:
-		cout << "You don't seem te be able to perform this action. Try help\n";
-		break;
-	}
-
 	updateStatusOfGameElements();
 }
 
 void World::updateStatusOfGameElements()
 {
-	for (vector<Entity*>::const_iterator element = gameElements.begin(); element != gameElements.end(); ++element)
+	clock_t present = clock();
+
+	if ((present - loopClock) / CLOCKS_PER_SEC > timeLoop) 
 	{
-		(*element)->updateStatus();
+		for (list<Entity*>::const_iterator element = gameElements.begin(); element != gameElements.end(); ++element)
+		{
+			(*element)->updateStatus();
+		}
+		loopClock = present;
 	}
 }

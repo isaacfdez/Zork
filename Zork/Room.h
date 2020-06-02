@@ -4,6 +4,7 @@
 #include "Entity.h"
 
 class Exit;
+class Item;
 
 using namespace std;
 

@@ -19,15 +19,15 @@ void Creature::lookAt() const
 {
 	if (!isAlive)
 	{
-		cout << "This is the corpse of ";
+		cout << "\n\nThis is the corpse of ";
 	}
-	cout << name << ", " << desc << "\n";	
+	cout << name << ", " << desc << "\n";
 }
 
 void Creature::showStats() const
 {
-	cout << name << "\n";
-	cout << lifePoints << "\n";
+	cout << "\n\nName: " << name << "\n";
+	cout << "Lifepoints: " << lifePoints << "\n";
 	if (weapon != NULL) {
 		cout << "Attack = " << weapon->valAttack << "\n";
 	}
@@ -60,31 +60,36 @@ void Creature::showInventory() const
 
 	if (inventory.size() != 0)
 	{
-		cout << "Inventory of " << name << "\n";
-		for (list<Entity*>::const_iterator item = inventory.begin(); item != inventory.end(); ++item)
+		cout << "\n\nInventory of " << name << "\n";
+		for (list<Entity*>::const_iterator element = inventory.begin(); element != inventory.end(); ++element)
 		{
-			switch ((*item)->type)
+			Item* item = (Item*)(*element);
+			switch (item->itemType)
 			{
 			case WEAPON:
-				cout << (*item)->name << " equiped as a weapon.\n";
+				cout << item->name << " equiped as a weapon.\n";
 				break;
 			case SHIELD:
-				cout << (*item)->name << " equiped as a shield.\n";
+				cout << item->name << " equiped as a shield.\n";
 				break;
 			case HELM:
-				cout << (*item)->name << " equiped as a helm.\n";
+				cout << item->name << " equiped as a helm.\n";
 				break;
 			case VEST:
-				cout << (*item)->name << " equiped as a vest.\n";
+				cout << item->name << " equiped as a vest.\n";
 				break;
 			case PANTS:
-				cout << (*item)->name << " equiped as pants.\n";
+				cout << item->name << " equiped as pants.\n";
 				break;
 			default:
-				cout << (*item)->name << "\n";
+				cout << item->name << "\n";
 				break;
 			}
 		}
+	}
+	else 
+	{
+		cout << "\n\n"<< name<< " does not have any item in its inventory\n";
 	}
 }
 
@@ -96,9 +101,17 @@ void Creature::hit()
 		{
 			if (targetToAttack->isAlive)
 			{
-				targetToAttack->block(baseAttack + weapon->valAttack);
-				cout << name << " attacks " << targetToAttack->name << " with a " << weapon->name << " for a value of " << baseAttack + weapon->valAttack << "\n";
-
+				if(weapon != NULL)
+				{
+					cout << "\n" << name << " attacks " << targetToAttack->name << " with a " << weapon->name << " for a value of " << baseAttack + weapon->valAttack << "\n";
+					targetToAttack->block(baseAttack + weapon->valAttack);
+				}
+				else
+				{
+					cout << "\n" << name << " attacks " << targetToAttack->name << " with its body for a value of " << baseAttack << "\n";
+					targetToAttack->block(baseAttack);
+				}
+				
 				if (targetToAttack->targetToAttack == NULL)
 				{
 					targetToAttack->targetToAttack = this;
@@ -114,28 +127,30 @@ void Creature::hit()
 
 void Creature::block(const int damageAmount)
 {
-	int damageReceived = damageAmount - (getSumArmor() + shield->valBlock);
+	int damageReceived = damageAmount - getSumArmor();
 
 	if (damageReceived > 0)
 	{
 		lifePoints -= damageReceived;
-		cout << name << " blocks " << getSumArmor() + shield->valBlock << " points of damage, losing " << damageReceived << " life points\n";
+		cout << "\n" << name << " blocks " << getSumArmor() << " points of damage, losing " << damageReceived << " life points\n";
+		if (lifePoints <= 0) {
 
-		if (lifePoints <= 0)
-		{
-			isAlive = false;
-			cout << name << " has died from a fatal hit\n";
+			cout << "\n" << name << " has died from a fatal hit\n";
 		}
 	}
 	else
 	{
-		cout << name << " blocks all the damage and does not lose any life points\n";
+		cout << "\n" << name << " blocks all the damage and does not lose any life points\n";
 	}
 }
 
 int Creature::getSumArmor() const
 {
 	int sum = 0;
+	if (shield != NULL) 
+	{
+		sum += shield->valBlock;
+	}
 	if (helm != NULL) 
 	{
 		sum += helm->valDefense;

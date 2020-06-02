@@ -2,8 +2,9 @@
 #define __Exit__
 
 #include "Entity.h"
-#include "Room.h"
-#include "Item.h"
+
+class Room;
+class Item;
 
 using namespace std;
 

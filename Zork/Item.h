@@ -13,10 +13,11 @@ enum ItemType //enum that indicates this Item's type
 class Item : public Entity //The list of Entities inherited from the class Entity for this class will be a list of Items this Item contains. It will be empty otherwise.
 {
 public: //variables
-	bool canEquip; //boolean that defines if the item can be equiped
-	int valAttack; //value of the amount of damage the item inflicts
-	int valBlock; //value of the amount of damage the item can block
-	int valDefense; //value of the amount of defense the item provides
+	bool isEquipped; //boolean that defines if this Item is equipped
+	bool canEquip; //boolean that defines if this Item can be equiped
+	int valAttack; //value of the amount of damage this Item inflicts
+	int valBlock; //value of the amount of damage this Item can block
+	int valDefense; //value of the amount of defense this Item provides
 	ItemType itemType; //slot in which this Item can be equiped
 
 public: //functions

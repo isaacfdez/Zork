@@ -2,9 +2,12 @@
 #include "Item.h"
 #include "Exit.h"
 #include "Room.h"
+#include <iostream>
 
 Player::Player(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack, bool humanoid) : Creature(name, desc, parent, lifePoints, baseAttack, humanoid)
 {
+	type = PLAYER;
+	triggerDeath = true;
 }
 
 Player::~Player()
@@ -13,6 +16,11 @@ Player::~Player()
 
 void Player::updateStatus()
 {
+	if (lifePoints <= 0)
+	{
+		isAlive = false;
+	}
+
 	if(isAlive)
 	{
 		if (targetToAttack != NULL)
@@ -25,13 +33,17 @@ void Player::updateStatus()
 	}
 	else
 	{
-		cout << "You died. Better luck next time. Execute command quit to quit the game.\n";
+		if (triggerDeath) 
+		{
+			cout << "You died. Better luck next time. Execute command quit to quit the game.\n";
+			triggerDeath = false;
+		}
 	}
 }
 
 void Player::showHelp() const
 {
-	cout << "This is a list of all the commands the player can execute with a brief description:\n";
+	cout << "\nThis is a list of all the commands the player can execute with a brief description:\n";
 	cout << "- help: This command will show the list of commands available.\n";
 	cout << "- look: This command will show you everything you have in sight.\n";
 	cout << "- look X: This command will show you information about X\n";
@@ -50,7 +62,7 @@ void Player::showHelp() const
 	cout << "- equip X: This command will equip X item if it exists in your inventory and is equipable in a free slot.\n";
 	cout << "- unequip X: This command will unequip X item and put it in your inventory if it exists and is equipped.\n";
 	cout << "- attack X: This command will make you start a combat with target character X.\n";
-	cout << "- quit: this command exits the game.\n";
+	cout << "- quit: this command exits the game.\n\n";
 }
 
 void Player::lookAt(const vector<string>& targetEntity)
@@ -60,43 +72,37 @@ void Player::lookAt(const vector<string>& targetEntity)
 		switch (targetEntity.size())
 		{
 		case 1:
-			parent->lookAt();
-			break;
-		case 2:
-			for (list<Entity*>::const_iterator entity = parent->gameElements.begin(); entity != parent->gameElements.end(); ++entity)
-			{
-				if (*entity != NULL)
-				{
-					if ((*entity)->type == EXIT)
-					{
-						if (_stricmp(targetEntity[1].c_str(), ((Room*)parent)->getExit(targetEntity[1])->name.c_str()))
-						{
-							(*entity)->lookAt();
-							break;
-						}
-					}
-					else if (_stricmp(targetEntity[1].c_str(), (*entity)->name.c_str()))
-					{
-						(*entity)->lookAt();
-						break;
-					}
-				}
-				else if (_stricmp(targetEntity[1].c_str(), name.c_str()))
-				{
-					cout << name << ", " << desc << "\n";
-					break;
-				}
-			}
-			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
-			break;
-		default:
-			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+		{
+			Room* room = (Room*)parent;
+			room->lookAt();
 			break;
 		}
+		case 2:
+		{
+			for (list<Entity*>::const_iterator entity = parent->gameElements.begin(); entity != parent->gameElements.cend(); ++entity)
+			{
+				if (_stricmp((*entity)->name.c_str(), targetEntity[1].c_str()) == 0 || ((*entity)->type == EXIT && _stricmp(targetEntity[1].c_str(), ((Exit*)(*entity))->direction.c_str()) == 0))
+				{
+					(*entity)->lookAt();
+					return;
+				}
+				if (_stricmp(targetEntity[1].c_str(), name.c_str()) == 0)
+				{
+					cout << "\n" << name << ", " << desc << "\n";
+					return;
+				}
+
+			}
+			cout << "\n\nYou do not see anything by the name " << targetEntity[1] << "\n";
+			break;
+		}
+		default:
+			break;
+		}		
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -107,8 +113,8 @@ void Player::showStats(const vector<string>& targetEntity) const
 		switch (targetEntity.size())
 		{
 		case 1:
-			cout << name << "\n";
-			cout << lifePoints << "\n";
+			cout << "\n\nName: " << name << "\n";
+			cout << "Lifepoints: " << lifePoints << "\n";
 			if (weapon != NULL) {
 				cout << "Attack = " << weapon->valAttack << "\n";
 			}
@@ -132,6 +138,7 @@ void Player::showStats(const vector<string>& targetEntity) const
 			{
 				cout << "No piece of armor equiped. Armor = 0\n";
 			}
+			break;
 		case 2:
 		{
 			Creature* target = (Creature*)parent->getElement(CREATURE, targetEntity[1]);
@@ -143,18 +150,18 @@ void Player::showStats(const vector<string>& targetEntity) const
 			}
 			else
 			{
-				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+				cout << "\n\nYou do not see anything by the name " << targetEntity[1] << "\n";
 				break;
 			}
 		}
 		default:
-			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			cout << "\n\nYou do not see anything by the name " << targetEntity[1] << "\n";
 			break;
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -171,30 +178,78 @@ void Player::showInventory(const vector<string>& targetEntity) const
 
 			if (inventory.size() != 0)
 			{
-				cout << "Inventory of " << name << "\n";
-				for (list<Entity*>::const_iterator item = inventory.begin(); item != inventory.end(); ++item)
+				cout << "\n\nInventory of " << name << "\n";
+				for (list<Entity*>::const_iterator element = inventory.begin(); element != inventory.end(); ++element)
 				{
-					switch ((*item)->type)
+					Item* item = (Item*)(*element);
+					switch (item->itemType)
 					{
 					case WEAPON:
-						cout << (*item)->name << " equiped as a weapon.\n";
-						break;
+						if (weapon != NULL && item->isEquipped)
+						{
+							cout << item->name << " equiped as a weapon.\n";
+							break;
+						}
+						else
+						{
+							cout << item->name << "\n";
+							break;
+						}
 					case SHIELD:
-						cout << (*item)->name << " equiped as a shield.\n";
-						break;
+						if (shield != NULL && item->isEquipped)
+						{
+							cout << item->name << " equiped as a shield.\n";
+							break;
+						}
+						else
+						{
+							cout << item->name << "\n";
+							break;
+						}
 					case HELM:
-						cout << (*item)->name << " equiped as a helm.\n";
-						break;
+						if (helm != NULL && item->isEquipped)
+						{
+							cout << item->name << " equiped as a helm.\n";
+							break;
+						}
+						else
+						{
+							cout << item->name << "\n";
+							break;
+						}
 					case VEST:
-						cout << (*item)->name << " equiped as a vest.\n";
-						break;
+						if (vest != NULL && item->isEquipped)
+						{
+							cout << item->name << " equiped as a vest.\n";
+							break;
+						}
+						else
+						{
+							cout << item->name << "\n";
+							break;
+						}
 					case PANTS:
-						cout << (*item)->name << " equiped as pants.\n";
-						break;
+						if (pants != NULL && item->isEquipped)
+						{
+							cout << item->name << " equiped as pants.\n";
+							break;
+						}
+						else
+						{
+							cout << item->name << "\n";
+							break;
+						}
 					default:
-						cout << (*item)->name << "\n";
+						cout << item->name << "\n";
+						break;
 					}
 				}
+				break;
+			}
+			else
+			{
+				cout << "\n\nYou do not have any item in your inventory\n";
+				break;
 			}
 		}
 		case 2:
@@ -208,18 +263,18 @@ void Player::showInventory(const vector<string>& targetEntity) const
 			}
 			else
 			{
-				cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+				cout << "\n\nYou do not see anything by the name " << targetEntity[1] << "\n";
 				break;
 			}
 		}
 		default:
-			cout << "You do not see anything by the name " << targetEntity[1] << "\n";
+			cout << "\n\nYou do not see anything by the name " << targetEntity[1] << "\n";
 			break;
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -233,24 +288,26 @@ void Player::go(const vector<string>& targetExit)
 		{
 			if (!exit->locked) 
 			{
-				changeParent(exit->destination);
-				cout << "You go in directon " << targetExit[1] << " and arrive at the " << exit->destination->name << "\n";
-				parent->lookAt();
+				Room* newParent = exit->destination;
+				changeParent(newParent);
+				cout << "\n\nYou go in directon " << targetExit[1] << " and arrive at the " << exit->destination->name << "\n";
+				cout << "---------------------------------------------------\n";
+				newParent->lookAt();
 			}
 			else
 			{
-				cout << "You try to go " << targetExit[1] << ", but it is locked. You need to find something to unlock it\n";
+				cout << "\n\nYou try to go " << targetExit[1] << ", but it is locked. You need to find something to unlock it\n";
 			}
 			
 		}
 		else
 		{
-			cout << "You do not see any path to take when you look " << targetExit[1] << "\n";
+			cout << "\n\nYou do not see any path to take when you look " << targetExit[1] << "\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -273,11 +330,11 @@ void Player::take(const vector<string>& targetItem)
 					if (item != NULL)
 					{
 						item->changeParent(this);
-						cout << "You take " << item->name << " from inside the " << secondItem->name << " located in the" << parent->name << "\n";
+						cout << "\n\nYou take " << item->name << " from inside the " << secondItem->name << " located in the " << parent->name << "\n";
 					}
 					else
 					{
-						cout << "You do not see " << targetItem[1] << " inside the " << secondItem->name << " located in the " << parent->name << "\n";
+						cout << "\n\nYou do not see " << targetItem[1] << " inside the " << secondItem->name << " located in the " << parent->name << "\n";
 					}		
 				}
 				else
@@ -290,35 +347,35 @@ void Player::take(const vector<string>& targetItem)
 						if(item != NULL)
 						{
 							item->changeParent(this);
-							cout << "You take " << item->name << " from inside the " << secondItem->name << " in your inventory\n";
+							cout << "\n\nYou take " << item->name << " from inside the " << secondItem->name << " in your inventory\n";
 						}
 						else
 						{
-							cout << "You do not see " << targetItem[1] << " inside the " << secondItem->name << " in your inventory\n";
+							cout << "\n\nYou do not see " << targetItem[1] << " inside the " << secondItem->name << " in your inventory\n";
 						}
 						
 					}
 					else
 					{
-						cout << "You do not have " << targetItem[3] << " in your inventory and you cannot see it in the room\n";
+						cout << "\n\nYou do not have " << targetItem[3] << " in your inventory and you cannot see it in the room\n";
 					}
 				}
 			}
 			else
 			{
-				cout << "You do not see " << targetItem[1] << " in this room\n";
+				cout << "\n\nYou do not see " << targetItem[1] << " in this room\n";
 			}
 		}
 		else
 		{
 			item->changeParent(this);
-			cout << "You take " << item->name << "\n";
+			cout << "\n\nYou take " << item->name << "\n";
 		}
 
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -327,6 +384,11 @@ void Player::drop(const vector<string>& targetItem)
 	if (isAlive)
 	{
 		Item* item = (Item*)getElement(ITEM, targetItem[1]);
+
+		if (item->canEquip && item->isEquipped) 
+		{
+			unequip(targetItem);
+		}
 
 		if (item != NULL)
 		{
@@ -337,7 +399,7 @@ void Player::drop(const vector<string>& targetItem)
 				if (secondItem != NULL)
 				{
 					item->changeParent(secondItem);
-					cout << "You drop " << item->name << " inside " << secondItem->name << "\n";
+					cout << "\n\nYou drop " << item->name << " inside " << secondItem->name << "\n";
 				}
 				else
 				{
@@ -346,28 +408,28 @@ void Player::drop(const vector<string>& targetItem)
 					if (secondItem != NULL)
 					{
 						item->changeParent(secondItem);
-						cout << "You drop " << item->name << " inside the " << secondItem->name << "\n";
+						cout << "\n\nYou drop " << item->name << " inside the " << secondItem->name << "\n";
 					}
 					else
 					{
-						cout << "You do not have " << targetItem[3] << " in your inventory and you cannot see it the room\n";
+						cout << "\n\nYou do not have " << targetItem[3] << " in your inventory and you cannot see it the room\n";
 					}
 				}
 			}
 			else
 			{
 				item->changeParent(parent);
-				cout << "You drop " << item->name << "in the " << parent->name << "\n";
+				cout << "\n\nYou drop " << item->name << " in the " << parent->name << "\n";
 			}
 		}
 		else
 		{
-			cout << "You do not have " << targetItem[1] << " in your inventory\n";
+			cout << "\n\nYou do not have " << targetItem[1] << " in your inventory\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -384,28 +446,29 @@ void Player::loot(const vector<string>& targetDeadCreature)
 
 			if(inventoryOfTarget.size() > 0)
 			{
-				cout << "You loot " << target->name << " and find:\n";
+				cout << "\n\nYou loot " << target->name << " and find:\n";
 
 				for (list<Entity*>::const_iterator item = inventoryOfTarget.begin(); item != inventoryOfTarget.end(); ++item)
 				{
 					Item* temporal = (Item*)(*item);
 					cout << "- " << temporal->name << "\n";
+					temporal->isEquipped = false;
 					temporal->changeParent(this);
 				}
 			}
 			else
 			{
-				cout << "You do not see anything to take from " << target->name << "\n";
+				cout << "\n\nYou do not see anything to take from " << target->name << "\n";
 			}
 		}
 		else
 		{
-			cout << target->name << " is alive. You have to kill " << target->name << " before looting\n";
+			cout << "\n\n" << target->name << " is alive. You have to kill " << target->name << " before looting\n";
 		}
 	}
 	else
 	{
-		cout << "You cannot see " << targetDeadCreature[1] << "\n";
+		cout << "\n\nYou cannot see " << targetDeadCreature[1] << "\n";
 	}
 }
 
@@ -426,23 +489,23 @@ void Player::lock(const vector<string>& targetExit)
 					if (key == exit->key)
 					{
 						exit->locked = true;
-						cout << "You locked the " << exit->destination << "\n";
+						cout << "\n\nYou locked " << exit->destination->name << "\n";
 					}
 				}
 			}
 			else
 			{
-				cout << exit->destination << " already locked\n";
+				cout << "\n\n" << exit->destination->name << " already locked\n";
 			}
 		}
 		else
 		{
-			cout << "You cannot see anything when you look " << targetExit[1] << "\n";
+			cout << "\n\nYou cannot see anything when you look " << targetExit[1] << "\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -463,23 +526,27 @@ void Player::unlock(const vector<string>& targetExit)
 					if (key == exit->key)
 					{
 						exit->locked = false;
-						cout << "You unlocked the " << exit->destination << "\n";
+						cout << "\n\nYou unlocked  " << exit->destination->name << "\n";
 					}
+				}
+				else
+				{
+					cout << "\n\nYou do not have the key to unlock " << targetExit[1] << ". Look for it first\n";
 				}
 			}
 			else
 			{
-				cout << exit->destination << " already unlocked\n";
+				cout << "\n\n" << exit->destination->name << " already unlocked\n";
 			}
 		}
 		else
 		{
-			cout << "You cannot see anything when you look " << targetExit[1] << "\n";
+			cout << "\n\nYou cannot see anything when you look " << targetExit[1] << "\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -493,61 +560,66 @@ void Player::equip(const vector<string>& targetItem)
 		{
 			if (item->canEquip)
 			{
-				switch (item->type)
+				switch (item->itemType)
 				{
 				case WEAPON:
 					if (weapon == NULL)
 					{
 						weapon = item;
-						cout << "You equip " << item->name << "in your weapon slot\n";
+						cout << "\n\nYou equip " << item->name << " in your weapon slot\n";
+						weapon->isEquipped = true;
 					}
 					else
 					{
-						cout << "You already have " << weapon->name << " equipped. Please, unequip " << weapon->name << "\n";
+						cout << "\n\nYou already have " << weapon->name << " equipped. Please, unequip " << weapon->name << "\n";
 					}					
 					break;
 				case SHIELD:
 					if (shield == NULL)
 					{
 						shield = item;
-						cout << "You equip " << item->name << "in your shield slot\n";
+						cout << "\n\nYou equip " << item->name << " in your shield slot\n";
+						shield->isEquipped = true;
 					}
 					else
 					{
-						cout << "You already have " << shield->name << " equipped. Please, unequip " << shield->name << "\n";
+						cout << "\n\nYou already have " << shield->name << " equipped. Please, unequip " << shield->name << "\n";
 					}
 					break;
 				case HELM:
 					if (helm == NULL)
 					{
 						helm = item;
-						cout << "You equip " << item->name << "in your helm slot\n";
+						cout << "\n\nYou equip " << item->name << " in your helm slot\n";
+						helm->isEquipped = true;
 					}
 					else
 					{
-						cout << "You already have " << helm->name << " equipped. Please, unequip " << helm->name << "\n";
+						cout << "\n\nYou already have " << helm->name << " equipped. Please, unequip " << helm->name << "\n";
 					}
 					break;
 				case VEST:
 					if (vest == NULL)
 					{
 						vest = item;
-						cout << "You equip " << item->name << "in your vest slot\n";
+						cout << "\n\nYou equip " << item->name << " in your vest slot\n";
+						vest->isEquipped = true;
 					}
 					else
 					{
-						cout << "You already have " << vest->name << " equipped. Please, unequip " << vest->name << "\n";
+						cout << "\n\nYou already have " << vest->name << " equipped. Please, unequip " << vest->name << "\n";
 					}
 					break;
 				case PANTS:
 					if (pants == NULL)
 					{
 						pants = item;
-						cout << "You equip " << item->name << "in your pants slot\n";
+						cout << "\n\nYou equip " << item->name << " in your pants slot\n";
+						pants->isEquipped = true;
 					}
 					else
 					{
-						cout << "You already have " << pants->name << " equipped. Please, unequip " << pants->name << "\n";
+						cout << "\n\nYou already have " << pants->name << " equipped. Please, unequip " << pants->name << "\n";
 					}
 					break;
 				default:
@@ -556,17 +628,17 @@ void Player::equip(const vector<string>& targetItem)
 			}
 			else
 			{
-				cout << "You cannot equip or unequip " << item->name << "\n";
+				cout << "\n\nYou cannot equip or unequip " << item->name << "\n";
 			}
 		}
 		else
 		{
-			cout << "You do not have " << targetItem[1] << " in your inventory\n";
+			cout << "\n\nYou do not have " << targetItem[1] << " in your inventory\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -580,80 +652,85 @@ void Player::unequip(const vector<string>& targetItem)
 		{
 			if (item->canEquip)
 			{
-				switch (item->type)
+				switch (item->itemType)
 				{
 				case WEAPON:
 					if(weapon == item)
 					{
+						weapon->isEquipped = false;
 						weapon = NULL;
-						cout << "You unequip " << item->name << "from your weapon slot\n";
+						cout << "\n\nYou unequip " << item->name << " from your weapon slot\n";
 					}
 					else
 					{
-						cout << "You do not have " << item->name << " equipped\n";
+						cout << "\n\nYou do not have " << item->name << " equipped\n";
 					}
 					break;
 				case SHIELD:
 					if (shield == item)
 					{
+						shield->isEquipped = false;
 						shield = NULL;
-						cout << "You unequip " << item->name << "from your shield slot\n";
+						cout << "\n\nYou unequip " << item->name << " from your shield slot\n";
 					}
 					else
 					{
-						cout << "You do not have " << item->name << " equipped\n";
+						cout << "\n\nYou do not have " << item->name << " equipped\n";
 					}
 					break;
 				case HELM:
 					if (helm == item)
 					{
+						helm->isEquipped = false;
 						helm = NULL;
-						cout << "You unequip " << item->name << "from your helm slot\n";
+						cout << "\n\nYou unequip " << item->name << " from your helm slot\n";
 					}
 					else
 					{
-						cout << "You do not have " << item->name << " equipped\n";
+						cout << "\n\nYou do not have " << item->name << " equipped\n";
 					}
 					break;
 				case VEST:
 					if (vest == item)
 					{
+						vest->isEquipped = false;
 						vest = NULL;
-						cout << "You unequip " << item->name << "from your vest slot\n";
+						cout << "\n\nYou unequip " << item->name << " from your vest slot\n";
 					}
 					else
 					{
-						cout << "You do not have " << item->name << " equipped\n";
+						cout << "\n\nYou do not have " << item->name << " equipped\n";
 					}
 					break;
 				case PANTS:
 					if (pants == item)
 					{
+						pants->isEquipped = false;
 						pants = NULL;
-						cout << "You unequip " << item->name << "from your pants slot\n";
+						cout << "\n\nYou unequip " << item->name << " from your pants slot\n";
 					}
 					else
 					{
-						cout << "You do not have " << item->name << " equipped\n";
+						cout << "\n\nYou do not have " << item->name << " equipped\n";
 					}
 					break;
 				default:
-					cout << "You do not have " << item->name << " equipped\n";
+					cout << "\n\nYou do not have " << item->name << " equipped\n";
 				}
 			}
 			else
 			{
-				cout << "You cannot equip or uneqip " << item->name << "\n";
+				cout << "\n\nYou cannot equip or uneqip " << item->name << "\n";
 			}
 		}
 		else
 		{
-			cout << "You do not have " << targetItem[1] << " in your inventory\n";
+			cout << "\n\nYou do not have " << targetItem[1] << " in your inventory\n";
 		}
 	}
 	else
 	{
-		cout << "Dead players can't perform actions. Execute command quit to quit the game.\n";
+		cout << "\n\nDead players can't perform actions. Execute command quit to quit the game.\n";
 	}
 }
 
@@ -663,11 +740,19 @@ void Player::attack(const vector<string>& targetCreature)
 
 	if (target != NULL)
 	{
-		targetToAttack = target;
-		cout << "You attack " << targetToAttack->name << "\n";
+		if (target->isAlive) 
+		{
+			targetToAttack = target;
+			cout << "\n\nYou attack " << targetToAttack->name << "\n";
+		}
+		else
+		{
+			cout << "\n\nYou cannot attack a dead character\n";
+		}
+		
 	}
 	else
 	{
-		cout << "You cannot see " << targetCreature[1] << "\n";
+		cout << "\n\nYou cannot see " << targetCreature[1] << "\n";
 	}
 }

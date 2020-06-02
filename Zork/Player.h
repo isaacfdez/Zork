@@ -3,11 +3,12 @@
 
 #include "Creature.h"
 
+using namespace std;
 
 class Player : public Creature
 {
 public: //variables
-
+	bool triggerDeath;
 public: //functions
 	Player(const char* name, const char* desc, Room* parent, int lifePoints, int baseAttack, bool humanoid);
 	virtual ~Player();
