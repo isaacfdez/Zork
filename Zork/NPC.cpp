@@ -48,7 +48,7 @@ void NPC::autoEquip(list<Entity*> inventory)
 		if (item != NULL)
 		{
 			item->changeParent(this);
-			if (item->canEquip)
+			if (item->canEquip && humanoid)
 			{
 				switch (item->itemType)
 				{

@@ -26,7 +26,7 @@ int main()
 		if (_kbhit() != 0)
 		{
 			key = _getch();
-			if (key == '\b') // backspace
+			if (key == '\b')
 			{
 				if (input.length() > 0)
 				{
@@ -36,7 +36,7 @@ int main()
 					cout << '\b';
 				}
 			}
-			else if (key != '\r') // return
+			else if (key != '\r')
 			{
 				input += key;
 				cout << key;
