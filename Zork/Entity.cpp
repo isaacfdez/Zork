@@ -75,6 +75,7 @@ Entity* Entity::getElement(Type type, const string& name) const
 			return *gameElement;
 		}
 	}
+	return NULL;
 }
 
 Entity* Entity::getPlayer()
@@ -86,6 +87,7 @@ Entity* Entity::getPlayer()
 			return *gameElement;
 		}
 	}
+	return NULL;
 }
 
 void Entity::getAllOf(Type type, list<Entity*>& elementsFound) const

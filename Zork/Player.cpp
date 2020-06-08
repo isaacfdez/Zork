@@ -385,13 +385,13 @@ void Player::drop(const vector<string>& targetItem)
 	{
 		Item* item = (Item*)getElement(ITEM, targetItem[1]);
 
-		if (item->canEquip && item->isEquipped) 
-		{
-			unequip(targetItem);
-		}
-
 		if (item != NULL)
 		{
+			if (item->canEquip && item->isEquipped)
+			{
+				unequip(targetItem);
+			}
+
 			if (targetItem.size() > 2)
 			{
 				Item* secondItem = (Item*)parent->getElement(ITEM, targetItem[3]);
